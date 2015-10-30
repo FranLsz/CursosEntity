@@ -9,43 +9,76 @@ namespace CursosEntity
 {
     class Program
     {
-        public static void inicializarDatos()
+        public static void InitBd()
         {
+
             using (var ctx = new Alumno15Entities())
             {
-                var a1 = new Aula() { capacidad = 25, nombre = "Aula 01", };
-                var a2 = new Aula() { capacidad = 30, nombre = "Aula 05" };
-                var a3 = new Aula() { capacidad = 20, nombre = "Aula 14" };
-                var a4 = new Aula() { capacidad = 40, nombre = "Aula 21" };
+                if (ctx.Aula.Any())
+                    return;
+
+                var la = new List<Aula>()
+                {
+                     new Aula() { capacidad = 25, nombre = "Aula 01", },
+                new Aula() { capacidad = 30, nombre = "Aula 05" },
+                new Aula() { capacidad = 20, nombre = "Aula 14" },
+                new Aula() { capacidad = 40, nombre = "Aula 21" }
+            };
 
 
+                ctx.Aula.AddRange(la);
 
-                ctx.Aula.Add(a1);
-                ctx.Aula.Add(a2);
-                ctx.Aula.Add(a3);
-                ctx.Aula.Add(a4);
+                var lc = new List<Curso>()
+                {
+                    new Curso() {Aula = la[2], duracion = 120, inicio = DateTime.Now, fin = DateTime.Now.AddDays(30), nombre = "C++"},
+                    new Curso() {Aula = la[0], duracion = 5, inicio = DateTime.Now, fin = DateTime.Now.AddDays(1), nombre = "Inteligencia emocional"}
+                };
 
-                ctx.Curso.Add(new Curso() { Aula = a1, nombre = "MCSD", inicio = DateTime.Now });
+                ctx.Curso.AddRange(lc);
 
-                ctx.Alumno.Add(new Alumno() { dni = "37374859D", nombre = "Juan Martín" });
-                ctx.Alumno.Add(new Alumno() { dni = "23439483D", nombre = "Juan Ramírez" });
-                ctx.Alumno.Add(new Alumno() { dni = "48384833K", nombre = "Juan Lucas" });
-                ctx.Alumno.Add(new Alumno() { dni = "54858484P", nombre = "Lucas Martín" });
-                ctx.Alumno.Add(new Alumno() { dni = "58458458M", nombre = "Daniel Martín" });
-                ctx.Alumno.Add(new Alumno() { dni = "34586856L", nombre = "David Martín" });
-                ctx.Alumno.Add(new Alumno() { dni = "89684954J", nombre = "Sonia Ramírez" });
-                ctx.Alumno.Add(new Alumno() { dni = "47345755N", nombre = "Daniel Lucas", });
-                ctx.Alumno.Add(new Alumno() { dni = "86485944J", nombre = "David Ramírez" });
-                ctx.Alumno.Add(new Alumno() { dni = "57484847Q", nombre = "Sonia Lucas" });
-                ctx.Alumno.Add(new Alumno() { dni = "86747622S", nombre = "Fabian Gijón" });
-                ctx.Alumno.Add(new Alumno() { dni = "58747377B", nombre = "Juan Gijón" });
-                ctx.Alumno.Add(new Alumno() { dni = "86776752N", nombre = "Pedro Martín" });
-                ctx.Alumno.Add(new Alumno() { dni = "56483921U", nombre = "Raul Martín" });
+                var lp = new List<Profesor>()
+                {
+                    new Profesor() {edad = 29, nombre = "Pepe perez"},
+                    new Profesor() {edad = 33, nombre = "Eva Jimenez"}
+                };
+
+                ctx.Profesor.AddRange(lp);
+
+                var lal = new List<Alumno>()
+                {
+                    new Alumno() { dni = "37374859D", nombre = "Juan Martín" },
+                    new Alumno() { dni = "23439483D", nombre = "Maria Ramírez" },
+                    new Alumno() { dni = "48384833K", nombre = "Pepe Lucas" }
+                };
+
+                lal[0].Curso.Add(lc[1]);
+                lal[0].Curso.Add(lc[0]);
+                lal[1].Curso.Add(lc[1]);
+                lal[2].Curso.Add(lc[1]);
+                lal[2].Curso.Add(lc[0]);
+
+                ctx.Alumno.AddRange(lal);
+
+                var lpc = new List<ProfesorCurso>()
+                {
+                    new ProfesorCurso() {Curso = lc[1], Profesor = lp[0],duracion = 100},
+                    new ProfesorCurso() {Curso = lc[0], Profesor = lp[0],duracion = 120},
+                    new ProfesorCurso() {Curso = lc[1], Profesor = lp[1],duracion = 210},
+                    new ProfesorCurso() {Curso = lc[0], Profesor = lp[1],duracion = 90}
+                };
 
 
+                ctx.ProfesorCurso.AddRange(lpc);
 
+                try
+                {
+                    ctx.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
 
-                ctx.SaveChanges();
             }
 
         }
@@ -104,7 +137,7 @@ namespace CursosEntity
                 {
                     var profesores = alumno.Curso.Select(o => o.ProfesorCurso.Select(oo => oo.Profesor));
 
-                    
+
                     if (profesores.Any())
                     {
                         foreach (var lp in profesores)
@@ -195,7 +228,7 @@ namespace CursosEntity
                             Console.WriteLine(c);
                             Console.WriteLine("---");
                         }
-                        
+
                     }
                 }
                 else
